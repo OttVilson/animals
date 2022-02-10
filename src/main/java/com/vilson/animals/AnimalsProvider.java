@@ -1,4 +1,4 @@
-package com.vilson.model;
+package com.vilson.animals;
 
 import java.util.List;
 

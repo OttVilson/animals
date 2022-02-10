@@ -1,4 +1,4 @@
-package com.vilson.model;
+package com.vilson.animals;
 
 public class Animal {
 
@@ -12,5 +12,9 @@ public class Animal {
 
     public String getName() {
         return name;
+    }
+
+    public String getFavoriteFood() {
+        return favoriteFood;
     }
 }

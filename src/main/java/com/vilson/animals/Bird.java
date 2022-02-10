@@ -1,6 +1,6 @@
-package com.vilson.model;
+package com.vilson.animals;
 
-public class Bird extends Animal {
+class Bird extends Animal {
 
     final double wingspanInMeters;
 
