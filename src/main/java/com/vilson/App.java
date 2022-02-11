@@ -3,7 +3,10 @@ package com.vilson;
 import com.vilson.animals.Animal;
 import com.vilson.animals.AnimalsProvider;
 import com.vilson.animals.HardcodedAnimalsProvider;
+import com.vilson.day.Day;
 import com.vilson.day.Lunch;
+import com.vilson.friends.FriendshipActions;
+import com.vilson.friends.FriendshipActionsImpl;
 import com.vilson.output.ConsoleOutput;
 
 public class App {
@@ -12,10 +15,11 @@ public class App {
         AnimalsProvider animalsProvider = new HardcodedAnimalsProvider();
         for (Animal animal : animalsProvider.getAnimals()) {
             System.out.println(animal);
-            System.out.println(animal.getClass());
         }
 
-        (new Lunch(animalsProvider, new ConsoleOutput())).outputEatersGroupedByFood();
+        FriendshipActions friendshipActions = new FriendshipActionsImpl(animalsProvider);
+        Day day = new Day(friendshipActions, new Lunch(animalsProvider), new ConsoleOutput());
+        day.processDayN(5);
     }
 
 }
