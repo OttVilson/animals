@@ -5,8 +5,10 @@ import com.vilson.generics.UnorderedPair;
 
 import java.util.List;
 
-public interface FriendshipContainer {
-    List<Animal> getFriendsOf(Animal animal);
+public interface FriendshipsContainer {
+    List<Animal> getAllFriendsOf(Animal animal);
+
+    List<Animal> getDisposableFriendsOf(Animal animal);
 
     int getNumberOfFriendsOf(Animal animal);
 
