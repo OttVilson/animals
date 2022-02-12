@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface FriendshipActions {
 
-    public List<UnorderedPair<Animal>> roundOfLosingFriends();
+    List<UnorderedPair<Animal>> roundOfLosingFriends();
 
-    public List<FlaggedOrderedPair<Animal>> roundOfGainingFriends();
+    List<FlaggedOrderedPair<Animal>> roundOfGainingFriends();
 }

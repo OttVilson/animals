@@ -11,6 +11,8 @@ import com.vilson.friends.FriendshipActionsImpl;
 import com.vilson.friends.HardcodedBestFriendsForLifeProvider;
 import com.vilson.output.ConsoleOutput;
 import com.vilson.output.Output;
+import com.vilson.random.RandomProvider;
+import com.vilson.random.RandomProviderImpl;
 
 public class App {
 
@@ -21,13 +23,15 @@ public class App {
         }
 
         Output output = new ConsoleOutput();
+        RandomProvider<Animal> random = new RandomProviderImpl<>();
 
-        FriendshipActions friendshipActions = new FriendshipActionsImpl(animalsProvider);
+
+        FriendshipActions friendshipActions = new FriendshipActionsImpl(animalsProvider, random);
         Day day = new Day(friendshipActions, new Lunch(animalsProvider), output);
         day.processDayN(5);
 
         BestFriendsForLifeProvider bffl = new HardcodedBestFriendsForLifeProvider(animalsProvider, output);
-        bffl.printPotentialBestFriends();
+        bffl.outputPotentialBestFriends();
     }
 
 }

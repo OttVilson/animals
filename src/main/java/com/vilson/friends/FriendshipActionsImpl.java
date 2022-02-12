@@ -4,34 +4,56 @@ import com.vilson.animals.Animal;
 import com.vilson.animals.AnimalsProvider;
 import com.vilson.generics.FlaggedOrderedPair;
 import com.vilson.generics.UnorderedPair;
+import com.vilson.random.RandomProvider;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class FriendshipActionsImpl implements FriendshipActions {
 
-    private final AnimalsProvider animalsProvider;
+    private final List<Animal> animals;
+    private final RandomProvider<Animal> random;
 
-    public FriendshipActionsImpl(AnimalsProvider animalsProvider) {
-        this.animalsProvider = animalsProvider;
+
+    public FriendshipActionsImpl(AnimalsProvider animalsProvider, RandomProvider<Animal> random) {
+        this.animals = animalsProvider.getAnimals();
+        this.random = random;
     }
 
     @Override
     public List<UnorderedPair<Animal>> roundOfLosingFriends() {
-        List<Animal> animals = animalsProvider.getAnimals();
-        List<UnorderedPair<Animal>> broken = new ArrayList<>();
-        broken.add(new UnorderedPair<>(animals.get(0), animals.get(1)));
-        broken.add(new UnorderedPair<>(animals.get(2), animals.get(3)));
-        return broken;
+        return collectResultfulAttempts(this::friendshipBreakAttempt);
     }
 
     @Override
     public List<FlaggedOrderedPair<Animal>> roundOfGainingFriends() {
-        List<Animal> animals = animalsProvider.getAnimals();
-        List<FlaggedOrderedPair<Animal>> attempts = new ArrayList<>();
-        attempts.add(new FlaggedOrderedPair<>(animals.get(0), animals.get(1), true));
-        attempts.add(new FlaggedOrderedPair<>(animals.get(2), animals.get(3), false));
+        return collectResultfulAttempts(this::friendshipStartAttempt);
+    }
 
-        return attempts;
+    private <T> List<T> collectResultfulAttempts(Function<Animal, Optional<T>> attemptFunction) {
+        List<Optional<T>> attempts = new ArrayList<>();
+        random.shuffle(animals);
+        for (Animal animal : animals)
+            attempts.add(attemptFunction.apply(animal));
+
+        return forwardThoseThatArePresent(attempts);
+    }
+
+    private Optional<UnorderedPair<Animal>> friendshipBreakAttempt(Animal animal) {
+        return Optional.empty();
+    }
+
+    private Optional<FlaggedOrderedPair<Animal>> friendshipStartAttempt(Animal animal) {
+        return Optional.empty();
+    }
+
+    private <T> List<T> forwardThoseThatArePresent(List<Optional<T>> attempts) {
+        return attempts.stream()
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
     }
 }
