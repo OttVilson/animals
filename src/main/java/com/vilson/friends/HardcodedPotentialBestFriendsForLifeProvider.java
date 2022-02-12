@@ -8,11 +8,11 @@ import com.vilson.output.Output;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class HardcodedBestFriendsForLifeProvider implements BestFriendsForLifeProvider {
+public class HardcodedPotentialBestFriendsForLifeProvider implements PotentialBestFriendsForLifeProvider {
     private final Set<UnorderedPair<Animal>> potentialBestFriends;
     private final Output output;
 
-    public HardcodedBestFriendsForLifeProvider(AnimalsProvider animalsProvider, Output output) {
+    public HardcodedPotentialBestFriendsForLifeProvider(AnimalsProvider animalsProvider, Output output) {
         this.potentialBestFriends = getInitializedPotentialBestFriends(animalsProvider);
         this.output = output;
     }
@@ -26,7 +26,7 @@ public class HardcodedBestFriendsForLifeProvider implements BestFriendsForLifePr
     public void outputPotentialBestFriends() {
         output.forwardMessage("The potential best friends for life are:");
         for (UnorderedPair<Animal> pair : potentialBestFriends)
-            output.forwardMessage("\t" + getNamesFromAnimalPair(pair));
+            output.forwardTabbedMessage(getNamesFromAnimalPair(pair));
     }
 
     private Set<UnorderedPair<Animal>> getInitializedPotentialBestFriends(AnimalsProvider animalsProvider) {

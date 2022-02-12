@@ -10,9 +10,13 @@ public interface RelationsContainer {
 
     List<Animal> getDisposableFriendsOf(Animal animal);
 
+    List<Animal> getNonFriendsOf(Animal animal);
+
     int getNumberOfFriendsOf(Animal animal);
 
     void addFriendship(UnorderedPair<Animal> toBeFriends);
 
     void removeFriendship(UnorderedPair<Animal> formerFriends);
+
+
 }

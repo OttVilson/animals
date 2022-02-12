@@ -2,36 +2,33 @@ package com.vilson;
 
 import com.vilson.animals.Animal;
 import com.vilson.animals.AnimalsProvider;
-import com.vilson.animals.HardcodedAnimalsProvider;
-import com.vilson.day.Day;
-import com.vilson.day.Lunch;
-import com.vilson.friends.BestFriendsForLifeProvider;
-import com.vilson.friends.FriendshipActions;
-import com.vilson.friends.FriendshipActionsImpl;
-import com.vilson.friends.HardcodedBestFriendsForLifeProvider;
-import com.vilson.output.ConsoleOutput;
-import com.vilson.output.Output;
-import com.vilson.random.RandomProvider;
-import com.vilson.random.RandomProviderImpl;
+
+import java.util.List;
 
 public class App {
 
+    private AnimalsProvider animalsProvider;
+
     public static void main(String[] args) {
-        AnimalsProvider animalsProvider = new HardcodedAnimalsProvider();
-        for (Animal animal : animalsProvider.getAnimals()) {
-            System.out.println(animal);
+
+        Structure structure = new Structure();
+        printOutAllAnimalsWithTheirAttributes(structure);
+
+        for (int i = 0; i < 10; i++) {
+            structure.day.processDayN(i + 1);
+            for (List<String> row : structure.friendshipTable.generateTable())
+                structure.output.forwardMessage(row.toString());
         }
 
-        Output output = new ConsoleOutput();
-        RandomProvider<Animal> random = new RandomProviderImpl<>();
-
-
-        FriendshipActions friendshipActions = new FriendshipActionsImpl(animalsProvider, random);
-        Day day = new Day(friendshipActions, new Lunch(animalsProvider), output);
-        day.processDayN(5);
-
-        BestFriendsForLifeProvider bffl = new HardcodedBestFriendsForLifeProvider(animalsProvider, output);
-        bffl.outputPotentialBestFriends();
+        structure.output.forwardMessage("The app finished");
     }
 
+    private static void printOutAllAnimalsWithTheirAttributes(Structure structure) {
+        structure.output.forwardMessage("Print out all animals with their attributes:");
+
+        for (Animal animal : structure.animalsProvider.getAnimals())
+            structure.output.forwardTabbedMessage(animal.toString());
+
+        structure.potentialBestFriendsForLifeProvider.outputPotentialBestFriends();
+    }
 }

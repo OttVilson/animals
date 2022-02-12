@@ -6,7 +6,6 @@ import com.vilson.generics.FlaggedOrderedPair;
 import com.vilson.generics.UnorderedPair;
 import com.vilson.random.RandomProvider;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -15,11 +14,15 @@ import java.util.stream.Collectors;
 public class FriendshipActionsImpl implements FriendshipActions {
 
     private final List<Animal> animals;
-    private final RandomProvider<Animal> random;
+    private final RelationsContainer relationsContainer;
+    private final FriendshipRules friendshipRules;
+    private final RandomProvider random;
 
-
-    public FriendshipActionsImpl(AnimalsProvider animalsProvider, RandomProvider<Animal> random) {
+    public FriendshipActionsImpl(AnimalsProvider animalsProvider, RandomProvider random,
+                                 RelationsContainer relationsContainer, FriendshipRules friendshipRules) {
         this.animals = animalsProvider.getAnimals();
+        this.relationsContainer = relationsContainer;
+        this.friendshipRules = friendshipRules;
         this.random = random;
     }
 
@@ -34,26 +37,58 @@ public class FriendshipActionsImpl implements FriendshipActions {
     }
 
     private <T> List<T> collectResultfulAttempts(Function<Animal, Optional<T>> attemptFunction) {
-        List<Optional<T>> attempts = new ArrayList<>();
         random.shuffle(animals);
-        for (Animal animal : animals)
-            attempts.add(attemptFunction.apply(animal));
-
-        return forwardThoseThatArePresent(attempts);
-    }
-
-    private Optional<UnorderedPair<Animal>> friendshipBreakAttempt(Animal animal) {
-        return Optional.empty();
-    }
-
-    private Optional<FlaggedOrderedPair<Animal>> friendshipStartAttempt(Animal animal) {
-        return Optional.empty();
-    }
-
-    private <T> List<T> forwardThoseThatArePresent(List<Optional<T>> attempts) {
-        return attempts.stream()
+        return animals.stream()
+                .map(attemptFunction)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
+    }
+
+    private Optional<UnorderedPair<Animal>> friendshipBreakAttempt(Animal animal) {
+        if (friendshipRules.wishesToEndAFriendship(animal)) {
+            Optional<Animal> other =
+                    getRandomOtherAnimal(this.relationsContainer::getDisposableFriendsOf, animal);
+
+            return removeAndReturnFormerFriendshipIfOtherIsPresentElseReturnEmpty(animal, other);
+        } else
+            return Optional.empty();
+    }
+
+    private Optional<UnorderedPair<Animal>> removeAndReturnFormerFriendshipIfOtherIsPresentElseReturnEmpty(
+            Animal animal, Optional<Animal> other) {
+        if (other.isPresent()) {
+            Animal otherAnimal = other.get();
+            UnorderedPair<Animal> formerFriends = new UnorderedPair<>(animal, otherAnimal);
+            relationsContainer.removeFriendship(formerFriends);
+            return Optional.of(formerFriends);
+        } else
+            return Optional.empty();
+    }
+
+    private Optional<FlaggedOrderedPair<Animal>> friendshipStartAttempt(Animal animal) {
+        Optional<Animal> other = getRandomOtherAnimal(this.relationsContainer::getNonFriendsOf, animal);
+
+        if (other.isPresent()) {
+            Animal otherAnimal = other.get();
+            boolean friendshipAttemptSuccessful =
+                    friendshipRules.possibleToStartFriendshipBetween(animal, otherAnimal);
+            if (friendshipAttemptSuccessful)
+                relationsContainer.addFriendship(new UnorderedPair<>(animal, otherAnimal));
+
+            FlaggedOrderedPair<Animal> announcement =
+                    new FlaggedOrderedPair<Animal>(animal, otherAnimal, friendshipAttemptSuccessful);
+            return Optional.of(announcement);
+        } else
+            return Optional.empty();
+    }
+
+    private Optional<Animal> getRandomOtherAnimal(Function<Animal, List<Animal>> fromWhichListOf,
+                                                  Animal animal) {
+        List<Animal> otherAnimals = fromWhichListOf.apply(animal);
+        if (otherAnimals.isEmpty()) return Optional.empty();
+
+        int randomIndex = random.provideRandomIntFromZeroToExcluded(otherAnimals.size());
+        return Optional.of(otherAnimals.get(randomIndex));
     }
 }

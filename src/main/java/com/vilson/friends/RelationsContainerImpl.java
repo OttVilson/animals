@@ -13,12 +13,12 @@ import java.util.function.BiConsumer;
 public class RelationsContainerImpl implements RelationsContainer {
 
     private final Map<Animal, AnimalRelationsImpl> animalsAndTheirRelations;
-    private final BestFriendsForLifeProvider bestFriendsForLifeProvider;
+    private final PotentialBestFriendsForLifeProvider potentialBestFriendsForLifeProvider;
 
     public RelationsContainerImpl(AnimalsProvider animalsProvider,
-                                  BestFriendsForLifeProvider bestFriendsForLifeProvider) {
+                                  PotentialBestFriendsForLifeProvider potentialBestFriendsForLifeProvider) {
         animalsAndTheirRelations = initializeAnimalsAndTheirRelations(animalsProvider);
-        this.bestFriendsForLifeProvider = bestFriendsForLifeProvider;
+        this.potentialBestFriendsForLifeProvider = potentialBestFriendsForLifeProvider;
     }
 
     @Override
@@ -34,6 +34,12 @@ public class RelationsContainerImpl implements RelationsContainer {
     }
 
     @Override
+    public List<Animal> getNonFriendsOf(Animal animal) {
+        validateThatInputAnimalBelongsToTheOriginalOnes(animal);
+        return animalsAndTheirRelations.get(animal).getCurrentNonFriends();
+    }
+
+    @Override
     public int getNumberOfFriendsOf(Animal animal) {
         validateThatInputAnimalBelongsToTheOriginalOnes(animal);
         return animalsAndTheirRelations.get(animal).getNumberOfFriends();
@@ -42,7 +48,7 @@ public class RelationsContainerImpl implements RelationsContainer {
     @Override
     public void addFriendship(UnorderedPair<Animal> toBeFriends) {
         validateThatBothAnimalsInInputPairBelongToTheOriginalOnes(toBeFriends);
-        if (bestFriendsForLifeProvider.arePotentiallyBestFriends(toBeFriends))
+        if (potentialBestFriendsForLifeProvider.arePotentiallyBestFriends(toBeFriends))
             symmetrizeBiConsumerUse(toBeFriends, AnimalRelationsImpl::addBestFriend);
         else
             symmetrizeBiConsumerUse(toBeFriends, AnimalRelationsImpl::addFriend);

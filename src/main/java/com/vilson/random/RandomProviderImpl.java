@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class RandomProviderImpl<T> implements RandomProvider<T> {
+public class RandomProviderImpl implements RandomProvider {
 
     @Override
     public int provideRandomIntFromZeroToExcluded(int end) {
@@ -12,7 +12,7 @@ public class RandomProviderImpl<T> implements RandomProvider<T> {
     }
 
     @Override
-    public void shuffle(List<T> collection) {
+    public void shuffle(List<?> collection) {
         Collections.shuffle(collection);
     }
 }
