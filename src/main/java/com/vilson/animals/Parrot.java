@@ -13,7 +13,7 @@ class Parrot extends Bird {
 
     @Override
     public String toString() {
-        String format = "The parrot %s likes to eat %s, has wingspan %fm, and %s speak.";
+        String format = "The parrot %s likes to eat %s, has wingspan %.2fm, and %s speak.";
         return String.format(format, name, favoriteFood, wingspanInMeters, doesOrDoesnt(canSpeak));
     }
 }

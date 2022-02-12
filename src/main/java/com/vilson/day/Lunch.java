@@ -2,7 +2,6 @@ package com.vilson.day;
 
 import com.vilson.animals.Animal;
 import com.vilson.animals.AnimalsProvider;
-import com.vilson.output.Output;
 
 import java.util.Map;
 import java.util.Set;
@@ -13,15 +12,13 @@ import java.util.stream.Stream;
 public class Lunch {
 
     private final String eatersGroupedByFood;
-    private final Output output;
 
-    public Lunch(AnimalsProvider animalsProvider, Output output) {
+    public Lunch(AnimalsProvider animalsProvider) {
         eatersGroupedByFood = initializeEatersGroupedByFood(animalsProvider);
-        this.output = output;
     }
 
-    public void outputEatersGroupedByFood() {
-        output.forwardMessage(eatersGroupedByFood);
+    String getEatersGroupedByFood() {
+        return eatersGroupedByFood;
     }
 
     private String initializeEatersGroupedByFood(AnimalsProvider animalsProvider) {

@@ -13,7 +13,7 @@ class Chicken extends Bird {
 
     @Override
     public String toString() {
-        String format = "The chicken %s loves to eat %s, has wingspan %fm, and %s lay eggs.";
+        String format = "The chicken %s loves to eat %s, has wingspan %.2fm, and %s lay eggs.";
         return String.format(format, name, favoriteFood, wingspanInMeters, doesOrDoesnt(laysEggs));
     }
 }

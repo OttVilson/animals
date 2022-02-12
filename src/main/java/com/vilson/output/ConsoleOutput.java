@@ -5,4 +5,9 @@ public class ConsoleOutput implements Output {
     public void forwardMessage(String message) {
         System.out.println(message);
     }
+
+    @Override
+    public void forwardTabbedMessage(String message) {
+        System.out.println("\t" + message);
+    }
 }

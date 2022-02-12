@@ -8,7 +8,7 @@ class Rooster extends Bird {
 
     @Override
     public String toString() {
-        String format = "The rooster %s likes to eat %s, and has wingspan %fm.";
+        String format = "The rooster %s likes to eat %s, and has wingspan %.2fm.";
         return String.format(format, name, favoriteFood, wingspanInMeters);
     }
 }
