@@ -1,14 +1,14 @@
-package com.vilson.friends;
+package com.vilson.relations;
 
 import com.vilson.animals.Animal;
 import com.vilson.random.RandomProvider;
 
-public class HardcodedFriendshipRules implements FriendshipRules {
+class HardcodedProbabilisticFriendshipRules implements ProbabilisticFriendshipRules {
 
     private final RandomProvider random;
     private final RelationsContainer relationsContainer;
 
-    public HardcodedFriendshipRules(RandomProvider random, RelationsContainer relationsContainer) {
+    HardcodedProbabilisticFriendshipRules(RandomProvider random, RelationsContainer relationsContainer) {
         this.random = random;
         this.relationsContainer = relationsContainer;
     }

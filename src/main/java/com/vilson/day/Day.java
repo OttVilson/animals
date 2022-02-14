@@ -1,10 +1,10 @@
 package com.vilson.day;
 
 import com.vilson.animals.Animal;
-import com.vilson.friends.FriendshipActions;
 import com.vilson.generics.FlaggedOrderedPair;
 import com.vilson.generics.UnorderedPair;
 import com.vilson.output.Output;
+import com.vilson.relations.FriendshipActions;
 
 import java.util.List;
 import java.util.stream.Collectors;

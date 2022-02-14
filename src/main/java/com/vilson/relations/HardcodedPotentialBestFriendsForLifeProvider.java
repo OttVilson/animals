@@ -1,4 +1,4 @@
-package com.vilson.friends;
+package com.vilson.relations;
 
 import com.vilson.animals.Animal;
 import com.vilson.animals.AnimalsProvider;
@@ -8,11 +8,11 @@ import com.vilson.output.Output;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class HardcodedPotentialBestFriendsForLifeProvider implements PotentialBestFriendsForLifeProvider {
+class HardcodedPotentialBestFriendsForLifeProvider implements PotentialBestFriendsForLifeProvider {
     private final Set<UnorderedPair<Animal>> potentialBestFriends;
     private final Output output;
 
-    public HardcodedPotentialBestFriendsForLifeProvider(AnimalsProvider animalsProvider, Output output) {
+    HardcodedPotentialBestFriendsForLifeProvider(AnimalsProvider animalsProvider, Output output) {
         this.potentialBestFriends = getInitializedPotentialBestFriends(animalsProvider);
         this.output = output;
     }

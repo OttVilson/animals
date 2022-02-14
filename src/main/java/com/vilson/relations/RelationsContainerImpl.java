@@ -1,24 +1,25 @@
-package com.vilson.friends;
+package com.vilson.relations;
 
 import com.vilson.animals.Animal;
 import com.vilson.animals.AnimalsProvider;
 import com.vilson.generics.UnorderedPair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 
-public class RelationsContainerImpl implements RelationsContainer {
+class RelationsContainerImpl implements RelationsContainer {
 
-    private final Map<Animal, AnimalRelationsImpl> animalsAndTheirRelations;
+    private final Map<Animal, AnimalRelations> animalsAndTheirRelations;
     private final PotentialBestFriendsForLifeProvider potentialBestFriendsForLifeProvider;
+    private final Set<UnorderedPair<Animal>> allFriendships;
 
-    public RelationsContainerImpl(AnimalsProvider animalsProvider,
-                                  PotentialBestFriendsForLifeProvider potentialBestFriendsForLifeProvider) {
-        animalsAndTheirRelations = initializeAnimalsAndTheirRelations(animalsProvider);
+    RelationsContainerImpl(AnimalsProvider animalsProvider,
+                           PotentialBestFriendsForLifeProvider potentialBestFriendsForLifeProvider,
+                           AnimalRelationsFactory animalRelationsFactory) {
+        animalsAndTheirRelations =
+                initializeAnimalsAndTheirRelations(animalsProvider, animalRelationsFactory);
         this.potentialBestFriendsForLifeProvider = potentialBestFriendsForLifeProvider;
+        allFriendships = new HashSet<>();
     }
 
     @Override
@@ -49,33 +50,41 @@ public class RelationsContainerImpl implements RelationsContainer {
     public void addFriendship(UnorderedPair<Animal> toBeFriends) {
         validateThatBothAnimalsInInputPairBelongToTheOriginalOnes(toBeFriends);
         if (potentialBestFriendsForLifeProvider.arePotentiallyBestFriends(toBeFriends))
-            symmetrizeBiConsumerUse(toBeFriends, AnimalRelationsImpl::addBestFriend);
+            performActions(toBeFriends, AnimalRelations::addBestFriend, Collection::add);
         else
-            symmetrizeBiConsumerUse(toBeFriends, AnimalRelationsImpl::addFriend);
+            performActions(toBeFriends, AnimalRelations::addFriend, Collection::add);
     }
 
     @Override
     public void removeFriendship(UnorderedPair<Animal> formerFriends) {
         validateThatBothAnimalsInInputPairBelongToTheOriginalOnes(formerFriends);
-        symmetrizeBiConsumerUse(formerFriends, AnimalRelationsImpl::removeFriend);
+        performActions(formerFriends, AnimalRelations::removeFriend, Collection::remove);
     }
 
-    private Map<Animal, AnimalRelationsImpl> initializeAnimalsAndTheirRelations(AnimalsProvider animalsProvider) {
-        Map<Animal, AnimalRelationsImpl> animalsAndTheirRelations = new HashMap<>();
+    @Override
+    public boolean areFriends(UnorderedPair<Animal> pair) {
+        return allFriendships.contains(pair);
+    }
+
+    private void performActions(UnorderedPair<Animal> pair,
+                                BiConsumer<AnimalRelations, Animal> actionOnIndividualLevel,
+                                BiConsumer<Set<UnorderedPair<Animal>>, UnorderedPair<Animal>>
+                                        actionOnJointCache) {
+        symmetrizeBiConsumerUse(pair, actionOnIndividualLevel);
+        actionOnJointCache.accept(allFriendships, pair);
+    }
+
+    private Map<Animal, AnimalRelations> initializeAnimalsAndTheirRelations(
+            AnimalsProvider animalsProvider, AnimalRelationsFactory animalRelationsFactory) {
+        Map<Animal, AnimalRelations> animalsAndTheirRelations = new HashMap<>();
         List<Animal> allAnimals = animalsProvider.getAnimals();
+
         for (Animal animal : allAnimals)
-            animalsAndTheirRelations.put(animal, getInitializedAnimalRelations(animal, allAnimals));
+            animalsAndTheirRelations.put(animal, animalRelationsFactory.getNewInstanceFor(animal));
         return animalsAndTheirRelations;
     }
 
-    private AnimalRelationsImpl getInitializedAnimalRelations(Animal animal, List<Animal> allAnimals) {
-        List<Animal> allOtherAnimals = new ArrayList<>(allAnimals);
-        allOtherAnimals.removeIf(otherAnimal -> otherAnimal.equals(animal));
-
-        return new AnimalRelationsImpl(allOtherAnimals);
-    }
-
-    private AnimalRelationsImpl getRelationsFor(Animal animal) {
+    private AnimalRelations getRelationsFor(Animal animal) {
         return animalsAndTheirRelations.get(animal);
     }
 
@@ -89,11 +98,11 @@ public class RelationsContainerImpl implements RelationsContainer {
     }
 
     private void symmetrizeBiConsumerUse(UnorderedPair<Animal> pair,
-                                         BiConsumer<AnimalRelationsImpl, Animal> biConsumer) {
+                                         BiConsumer<AnimalRelations, Animal> relationChange) {
         List<Animal> both = pair.getComponents();
         Animal one = both.get(0);
         Animal other = both.get(1);
-        biConsumer.accept(getRelationsFor(one), other);
-        biConsumer.accept(getRelationsFor(other), one);
+        relationChange.accept(getRelationsFor(one), other);
+        relationChange.accept(getRelationsFor(other), one);
     }
 }
