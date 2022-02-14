@@ -1,4 +1,4 @@
-package com.vilson.relations.format;
+package com.vilson.table;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -16,23 +16,48 @@ class TableWalls {
     final static String ordinaryInteriorWall = "%3$s";
     final static String rightOuterWall = "%4$s";
 
-    enum Walls {
-        UpperBorder(upperBorderWalls),
-        HeaderFloor(headerFloorWalls),
-        ContentRow(contentRowWalls),
-        ContentFloor(contentFloorWalls),
-        LowerBorder(lowerBorderWalls);
+    enum Wall {
+        UPPER_BORDER(upperBorderWalls),
+        HEADER_FLOOR(headerFloorWalls),
+        CONTENT_ROW(contentRowWalls),
+        CONTENT_FLOOR(contentFloorWalls),
+        LOWER_BORDER(lowerBorderWalls);
 
         private final List<String> walls;
 
-        private Walls(List<String> walls) {
+        Wall(List<String> walls) {
             this.walls = walls;
         }
 
-        Object[] getPreparedElementsWithWalls(List<String> contents) {
+        Object[] getElementsAppendedToWalls(List<String> contents) {
             List<String> copyOfContents = new LinkedList<>(contents);
             copyOfContents.addAll(0, walls);
             return copyOfContents.toArray();
+        }
+    }
+
+    static abstract class FormatMarker {
+        int nextIndex = upperBorderWalls.size() + 1;
+
+        String next() {
+            String formatMarker = "%" + nextIndex + "$s";
+            updateNextIndex();
+            return formatMarker;
+        }
+
+        abstract void updateNextIndex();
+    }
+
+    static class StaticFormatMarker extends FormatMarker {
+        @Override
+        void updateNextIndex() {
+        }
+    }
+
+    static class MovingFormatMarker extends FormatMarker {
+        @Override
+        void updateNextIndex() {
+            nextIndex++;
         }
     }
 }
