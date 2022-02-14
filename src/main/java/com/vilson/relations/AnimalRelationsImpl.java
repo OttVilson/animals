@@ -1,4 +1,4 @@
-package com.vilson.friends;
+package com.vilson.relations;
 
 import com.vilson.animals.Animal;
 
@@ -29,7 +29,7 @@ class AnimalRelationsImpl implements AnimalRelations {
     }
 
     public void removeFriend(Animal animal) {
-        int index = allOtherAnimals.indexOf(animal);
+        int index = allOtherAnimals.lastIndexOf(animal);
         validateIndexForRemovingFriend(index, animal);
 
         allOtherAnimals.remove(index);

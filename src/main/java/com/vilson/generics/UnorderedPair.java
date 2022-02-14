@@ -2,15 +2,19 @@ package com.vilson.generics;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 public class UnorderedPair<T> {
-
     private final T one;
     private final T other;
 
     public UnorderedPair(T one, T other) {
         this.one = one;
         this.other = other;
+    }
+
+    public static <T> Function<T, UnorderedPair<T>> formUnorderedPairWith(T other) {
+        return (T one) -> new UnorderedPair<>(one, other);
     }
 
     @Override

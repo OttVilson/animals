@@ -1,4 +1,4 @@
-package com.vilson.friends;
+package com.vilson.relations;
 
 import com.vilson.animals.Animal;
 import com.vilson.generics.FlaggedOrderedPair;

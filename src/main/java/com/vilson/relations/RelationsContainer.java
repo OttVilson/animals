@@ -1,11 +1,11 @@
-package com.vilson.friends;
+package com.vilson.relations;
 
 import com.vilson.animals.Animal;
 import com.vilson.generics.UnorderedPair;
 
 import java.util.List;
 
-public interface RelationsContainer {
+interface RelationsContainer {
     List<Animal> getAllFriendsOf(Animal animal);
 
     List<Animal> getDisposableFriendsOf(Animal animal);
@@ -18,5 +18,5 @@ public interface RelationsContainer {
 
     void removeFriendship(UnorderedPair<Animal> formerFriends);
 
-
+    boolean areFriends(UnorderedPair<Animal> pair);
 }

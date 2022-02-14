@@ -1,8 +1,8 @@
-package com.vilson.friends;
+package com.vilson.relations;
 
 import com.vilson.animals.Animal;
 
-public interface FriendshipRules {
+interface ProbabilisticFriendshipRules {
     boolean possibleToStartFriendshipBetween(Animal initiator, Animal responder);
 
     boolean wishesToEndAFriendship(Animal animal);

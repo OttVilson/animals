@@ -1,4 +1,4 @@
-package com.vilson.friends;
+package com.vilson.relations;
 
 import com.vilson.animals.Animal;
 import com.vilson.animals.AnimalsProvider;
@@ -11,18 +11,19 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class FriendshipActionsImpl implements FriendshipActions {
+class FriendshipActionsImpl implements FriendshipActions {
 
     private final List<Animal> animals;
     private final RelationsContainer relationsContainer;
-    private final FriendshipRules friendshipRules;
+    private final ProbabilisticFriendshipRules probabilisticFriendshipRules;
     private final RandomProvider random;
 
-    public FriendshipActionsImpl(AnimalsProvider animalsProvider, RandomProvider random,
-                                 RelationsContainer relationsContainer, FriendshipRules friendshipRules) {
+    FriendshipActionsImpl(AnimalsProvider animalsProvider, RandomProvider random,
+                          RelationsContainer relationsContainer,
+                          ProbabilisticFriendshipRules probabilisticFriendshipRules) {
         this.animals = animalsProvider.getAnimals();
         this.relationsContainer = relationsContainer;
-        this.friendshipRules = friendshipRules;
+        this.probabilisticFriendshipRules = probabilisticFriendshipRules;
         this.random = random;
     }
 
@@ -46,7 +47,7 @@ public class FriendshipActionsImpl implements FriendshipActions {
     }
 
     private Optional<UnorderedPair<Animal>> friendshipBreakAttempt(Animal animal) {
-        if (friendshipRules.wishesToEndAFriendship(animal)) {
+        if (probabilisticFriendshipRules.wishesToEndAFriendship(animal)) {
             Optional<Animal> other =
                     getRandomOtherAnimal(this.relationsContainer::getDisposableFriendsOf, animal);
 
@@ -72,7 +73,7 @@ public class FriendshipActionsImpl implements FriendshipActions {
         if (other.isPresent()) {
             Animal otherAnimal = other.get();
             boolean friendshipAttemptSuccessful =
-                    friendshipRules.possibleToStartFriendshipBetween(animal, otherAnimal);
+                    probabilisticFriendshipRules.possibleToStartFriendshipBetween(animal, otherAnimal);
             if (friendshipAttemptSuccessful)
                 relationsContainer.addFriendship(new UnorderedPair<>(animal, otherAnimal));
 
