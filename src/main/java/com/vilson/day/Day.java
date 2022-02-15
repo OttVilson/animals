@@ -80,7 +80,7 @@ public class Day {
     }
 
     private void announceFriendshipAttempt(FlaggedOrderedPair<Animal> friendshipAttempt) {
-        List<Animal> animals = friendshipAttempt.getPairComponents();
+        List<Animal> animals = friendshipAttempt.getComponents();
         String asker = animals.get(0).getName();
         String responder = animals.get(1).getName();
         String format = friendshipAttempt.getFlag() ? POSITIVE_RESPONSE : NEGATIVE_RESPONSE;

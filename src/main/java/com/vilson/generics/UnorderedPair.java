@@ -4,13 +4,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
-public class UnorderedPair<T> {
-    private final T one;
-    private final T other;
+public class UnorderedPair<T> extends Pair<T> {
 
     public UnorderedPair(T one, T other) {
-        this.one = one;
-        this.other = other;
+        super(one, other);
     }
 
     public static <T> Function<T, UnorderedPair<T>> formUnorderedPairWith(T other) {
@@ -50,5 +47,4 @@ public class UnorderedPair<T> {
     private boolean isMixedPositionMatch(UnorderedPair<?> otherPair) {
         return one.equals(otherPair.other) && other.equals(otherPair.one);
     }
-
 }
