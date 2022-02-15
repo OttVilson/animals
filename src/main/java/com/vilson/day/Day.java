@@ -24,8 +24,8 @@ public class Day {
     private static final String NEGATIVE_RESPONSE =
             "%1$s is asking %2$s to be friends. %2$s doesn't want to be friends with %1$s.";
 
-    public Day(FriendshipActions friendshipActions, FriendshipTable friendshipTable, Lunch lunch, Output output,
-               TableFormatter tableFormatter) {
+    public Day(FriendshipActions friendshipActions, FriendshipTable friendshipTable, Lunch lunch,
+               Output output, TableFormatter tableFormatter) {
         this.friendshipActions = friendshipActions;
         this.friendshipTable = friendshipTable;
         this.lunch = lunch;
@@ -36,30 +36,39 @@ public class Day {
     public void processDayN(int n) {
         output.forwardMessage("Day-" + n);
 
-        processBeforeLunch();
-        output.forwardMessage(lunch.getEatersGroupedByFood());
-        processAfterLunch();
+        processDailyActivities();
 
-        processDailyReport();
+        dailyReport();
+    }
+
+    private void processDailyActivities() {
+        processBeforeLunch();
+
+        output.forwardMessage("Lunch:");
+        output.forwardIndentedMessage(lunch.getEatersGroupedByFood());
+
+        processAfterLunch();
+    }
+
+    private void dailyReport() {
+        List<List<String>> table = friendshipTable.generateSquareTableWithAtLeastOneCell();
+        String formattedTable = tableFormatter.getFormattedTable(table);
+        output.forwardMessage(formattedTable);
     }
 
     private void processBeforeLunch() {
+        output.forwardMessage("The broken friendships are:");
         List<UnorderedPair<Animal>> brokenFriendships = friendshipActions.roundOfLosingFriends();
         for (UnorderedPair<Animal> brokenFriendship : brokenFriendships)
             announceBrokenFriendship(brokenFriendship);
     }
 
     private void processAfterLunch() {
+        output.forwardMessage("The friendship start attempts are:");
         List<FlaggedOrderedPair<Animal>> friendshipAttempts =
                 friendshipActions.roundOfGainingFriends();
         for (FlaggedOrderedPair<Animal> friendshipAttempt : friendshipAttempts)
             announceFriendshipAttempt(friendshipAttempt);
-    }
-
-    private void processDailyReport() {
-        List<List<String>> table = friendshipTable.generateSquareTableWithAtLeastOneCell();
-        String formattedTable = tableFormatter.getFormattedTable(table);
-        output.forwardMessage(formattedTable);
     }
 
     private void announceBrokenFriendship(UnorderedPair<Animal> brokenFriendship) {
@@ -67,7 +76,7 @@ public class Day {
                 .map(Animal::getName)
                 .collect(Collectors.joining(" and "));
 
-        output.forwardMessage(formerFriends + " are no longer friends.");
+        output.forwardIndentedMessage(formerFriends + " are no longer friends.");
     }
 
     private void announceFriendshipAttempt(FlaggedOrderedPair<Animal> friendshipAttempt) {
@@ -75,6 +84,6 @@ public class Day {
         String asker = animals.get(0).getName();
         String responder = animals.get(1).getName();
         String format = friendshipAttempt.getFlag() ? POSITIVE_RESPONSE : NEGATIVE_RESPONSE;
-        output.forwardMessage(String.format(format, asker, responder));
+        output.forwardIndentedMessage(String.format(format, asker, responder));
     }
 }

@@ -6,9 +6,7 @@ import com.vilson.generics.UnorderedPair;
 import java.util.List;
 
 interface RelationsContainer {
-    List<Animal> getAllFriendsOf(Animal animal);
-
-    List<Animal> getDisposableFriendsOf(Animal animal);
+    List<Animal> getFriendsOtherThanBestFriendOf(Animal animal);
 
     List<Animal> getNonFriendsOf(Animal animal);
 

@@ -15,7 +15,5 @@ interface AnimalRelations {
 
     List<Animal> getFriendsOtherThanBestFriend();
 
-    List<Animal> getAllFriends();
-
     List<Animal> getCurrentNonFriends();
 }

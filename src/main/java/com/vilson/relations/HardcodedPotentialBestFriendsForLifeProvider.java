@@ -3,18 +3,15 @@ package com.vilson.relations;
 import com.vilson.animals.Animal;
 import com.vilson.animals.AnimalsProvider;
 import com.vilson.generics.UnorderedPair;
-import com.vilson.output.Output;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 class HardcodedPotentialBestFriendsForLifeProvider implements PotentialBestFriendsForLifeProvider {
     private final Set<UnorderedPair<Animal>> potentialBestFriends;
-    private final Output output;
 
-    HardcodedPotentialBestFriendsForLifeProvider(AnimalsProvider animalsProvider, Output output) {
+    HardcodedPotentialBestFriendsForLifeProvider(AnimalsProvider animalsProvider) {
         this.potentialBestFriends = getInitializedPotentialBestFriends(animalsProvider);
-        this.output = output;
     }
 
     @Override
@@ -23,45 +20,48 @@ class HardcodedPotentialBestFriendsForLifeProvider implements PotentialBestFrien
     }
 
     @Override
-    public void outputPotentialBestFriends() {
-        output.forwardMessage("The potential best friends for life are:");
-        for (UnorderedPair<Animal> pair : potentialBestFriends)
-            output.forwardTabbedMessage(getNamesFromAnimalPair(pair));
+    public String outputPotentialBestFriends() {
+        return formatMessage();
     }
 
     private Set<UnorderedPair<Animal>> getInitializedPotentialBestFriends(AnimalsProvider animalsProvider) {
-        List<Animal> animals = new LinkedList<>(animalsProvider.getAnimals());
+        List<Animal> animals = new ArrayList<>(animalsProvider.getAnimals());
         Set<UnorderedPair<Animal>> potentialBestFriends = new HashSet<>();
-        fillSet(animals, potentialBestFriends);
+        fillSet(potentialBestFriends, animals);
         return potentialBestFriends;
     }
 
-    private void fillSet(List<Animal> animals, Set<UnorderedPair<Animal>> potentialBestFriends) {
-        potentialBestFriends.add(composePair(animals, "Rex", "Tom"));
-        potentialBestFriends.add(composePair(animals, "Max", "Jay"));
-        potentialBestFriends.add(composePair(animals, "Zoe", "Ada"));
-        potentialBestFriends.add(composePair(animals, "Meg", "Lis"));
-        potentialBestFriends.add(composePair(animals, "Emi", "Lua"));
-        potentialBestFriends.add(composePair(animals, "Mac", "Alf"));
+    private String formatMessage() {
+        return potentialBestFriends.stream()
+                .map(this::getNamesFromAnimalPair)
+                .collect(Collectors.joining(System.lineSeparator()));
     }
 
-    private UnorderedPair<Animal> composePair(List<Animal> animals,
-                                              String nameOfOne, String nameOfOther) {
-        Animal one = findAnimal(animals, nameOfOne);
-        Animal other = findAnimal(animals, nameOfOther);
+    private void fillSet(Set<UnorderedPair<Animal>> potentialBestFriends, List<Animal> animals) {
+        potentialBestFriends.add(composePair("Rex", "Tom", animals));
+        potentialBestFriends.add(composePair("Max", "Jay", animals));
+        potentialBestFriends.add(composePair("Zoe", "Ada", animals));
+        potentialBestFriends.add(composePair("Meg", "Lis", animals));
+        potentialBestFriends.add(composePair("Emi", "Lua", animals));
+        potentialBestFriends.add(composePair("Mac", "Alf", animals));
+    }
+
+    private String getNamesFromAnimalPair(UnorderedPair<Animal> pair) {
+        return pair.getComponents().stream().map(Animal::getName).collect(Collectors.joining(" and "));
+    }
+
+    private UnorderedPair<Animal> composePair(String nameOfOne, String nameOfOther, List<Animal> animals) {
+        Animal one = findAnimal(nameOfOne, animals);
+        Animal other = findAnimal(nameOfOther, animals);
 
         return new UnorderedPair<>(one, other);
     }
 
-    private Animal findAnimal(List<Animal> animals, String name) {
+    private Animal findAnimal(String name, List<Animal> animals) {
         Optional<Animal> animal = animals.stream().filter(a -> a.getName().equals(name)).findAny();
         animal.orElseThrow(
                 () -> new IllegalArgumentException("The animal (" + name + ") wasn't present at all"));
 
         return animal.get();
-    }
-
-    private String getNamesFromAnimalPair(UnorderedPair<Animal> pair) {
-        return pair.getComponents().stream().map(Animal::getName).collect(Collectors.joining(" and "));
     }
 }

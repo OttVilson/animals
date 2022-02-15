@@ -28,7 +28,7 @@ public class FriendshipTable {
     public List<List<String>> generateSquareTableWithAtLeastOneCell() {
         List<List<String>> rows = new ArrayList<>();
         rows.add(getFirstRow());
-        
+
         animals.stream().map(this::getRowFor).forEachOrdered(rows::add);
         return rows;
     }
@@ -47,11 +47,11 @@ public class FriendshipTable {
         return startStreamWith(animal.getName(), relations).collect(Collectors.toList());
     }
 
-    private String flaggedCellOutput(boolean flag) {
-        return flag ? CHOSEN : EMPTY_CELL;
-    }
-
     private <T> Stream<T> startStreamWith(T startWithElement, Stream<T> stream) {
         return Stream.concat(Stream.of(startWithElement), stream);
+    }
+
+    private String flaggedCellOutput(boolean flag) {
+        return flag ? CHOSEN : EMPTY_CELL;
     }
 }
