@@ -70,7 +70,7 @@ class FriendshipActionsImpl implements FriendshipActions {
     private <T extends Pair<Animal>> void iteratorRound(AttemptMethodReferences<T> refs,
                                                         IteratorWithFeedback<Animal> iterator, List<T> results) {
         Animal initiator = iterator.next();
-        List<Animal> animalsToChooseFrom = getAnimalsToChooseFrom(refs, initiator, iterator);
+        List<Animal> animalsToChooseFrom = getAnimalsFromWhomToChoose(refs, initiator, iterator);
         Optional<T> optionalPair = refs.attemptFunction.apply(initiator, animalsToChooseFrom);
         optionalPair.ifPresent(iterator::feedback);
         optionalPair.ifPresent(results::add);
@@ -96,9 +96,9 @@ class FriendshipActionsImpl implements FriendshipActions {
         return new FlaggedOrderedPair<>(initiator, responder, friendshipAttemptSuccessful);
     }
 
-    private <T extends Pair<Animal>> List<Animal> getAnimalsToChooseFrom(AttemptMethodReferences<T> refs,
-                                                                         Animal initiator,
-                                                                         IteratorWithFeedback<Animal> iterator) {
+    private <T extends Pair<Animal>> List<Animal> getAnimalsFromWhomToChoose(AttemptMethodReferences<T> refs,
+                                                                             Animal initiator,
+                                                                             IteratorWithFeedback<Animal> iterator) {
         List<Animal> animalsToChooseFrom = refs.pickRandomAnimalFromWhichListOf.apply(initiator);
         iterator.removeThoseNotParticipatingAnymoreFromList(animalsToChooseFrom);
         return animalsToChooseFrom;
