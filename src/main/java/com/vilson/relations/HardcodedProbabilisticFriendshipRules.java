@@ -8,9 +8,19 @@ class HardcodedProbabilisticFriendshipRules implements ProbabilisticFriendshipRu
     private final RandomProvider random;
     private final RelationsContainer relationsContainer;
 
-    HardcodedProbabilisticFriendshipRules(RandomProvider random, RelationsContainer relationsContainer) {
+    private final int maxNumberOfFriendsForGoodProbabilityToGetAndKeepFriends;
+    private final int goodProbability;
+    private final int badProbability;
+
+    HardcodedProbabilisticFriendshipRules(RandomProvider random, RelationsContainer relationsContainer,
+                                          ConfigurationForProbabilisticFriendshipRules configuration) {
         this.random = random;
         this.relationsContainer = relationsContainer;
+
+        maxNumberOfFriendsForGoodProbabilityToGetAndKeepFriends =
+                configuration.getMaxNumberOfFriendsForGoodProbabilityToGetFriends();
+        goodProbability = configuration.getGoodProbability();
+        badProbability = configuration.getBadProbability();
     }
 
     @Override
@@ -20,16 +30,7 @@ class HardcodedProbabilisticFriendshipRules implements ProbabilisticFriendshipRu
 
     @Override
     public boolean wishesToEndAFriendship(Animal initiator) {
-        return reject(initiator);
-    }
-
-    private boolean trueWithProbability(int probabilityPercentage) {
-        return zeroIsAlwaysFalseAnd100IsAlwaysTrue(probabilityPercentage);
-    }
-
-    private boolean zeroIsAlwaysFalseAnd100IsAlwaysTrue(int probabilityPercentage) {
-        int randomFrom0To99 = random.provideRandomIntFromZeroToExcluded(100);
-        return randomFrom0To99 < probabilityPercentage;
+        return rejectFriendship(initiator);
     }
 
     private boolean accept(Animal animal) {
@@ -37,18 +38,31 @@ class HardcodedProbabilisticFriendshipRules implements ProbabilisticFriendshipRu
         return trueWithProbability(acceptancePercentage);
     }
 
-    private boolean reject(Animal animal) {
+    private boolean rejectFriendship(Animal animal) {
         int rejectionPercentage = rejectionPercentage(animal);
         return trueWithProbability(rejectionPercentage);
     }
 
     private int acceptancePercentage(Animal animal) {
         int numberOfFriends = relationsContainer.getNumberOfFriendsOf(animal);
-        return numberOfFriends >= 3 ? 10 : 90;
+        return numberOfFriends <= maxNumberOfFriendsForGoodProbabilityToGetAndKeepFriends ?
+                goodProbability :
+                badProbability;
+    }
+
+    private boolean trueWithProbability(int probabilityPercentage) {
+        return zeroIsAlwaysFalseAnd100IsAlwaysTrue(probabilityPercentage);
     }
 
     private int rejectionPercentage(Animal animal) {
         int numberOfFriends = relationsContainer.getNumberOfFriendsOf(animal);
-        return numberOfFriends >= 3 ? 90 : 10;
+        return numberOfFriends > maxNumberOfFriendsForGoodProbabilityToGetAndKeepFriends ?
+                goodProbability :
+                badProbability;
+    }
+
+    private boolean zeroIsAlwaysFalseAnd100IsAlwaysTrue(int probabilityPercentage) {
+        int randomFrom0To99 = random.provideRandomIntFromZeroToExcluded(100);
+        return randomFrom0To99 < probabilityPercentage;
     }
 }

@@ -18,9 +18,8 @@ class FriendshipActionsImpl implements FriendshipActions {
     private final ProbabilisticFriendshipRules probabilisticFriendshipRules;
     private final RandomProvider random;
 
-    FriendshipActionsImpl(AnimalsProvider animalsProvider, RandomProvider random,
-                          RelationsContainer relationsContainer,
-                          ProbabilisticFriendshipRules probabilisticFriendshipRules) {
+    FriendshipActionsImpl(AnimalsProvider animalsProvider, RelationsContainer relationsContainer,
+                          ProbabilisticFriendshipRules probabilisticFriendshipRules, RandomProvider random) {
         this.animals = animalsProvider.getAnimals();
         this.relationsContainer = relationsContainer;
         this.probabilisticFriendshipRules = probabilisticFriendshipRules;
@@ -48,44 +47,39 @@ class FriendshipActionsImpl implements FriendshipActions {
 
     private Optional<UnorderedPair<Animal>> friendshipBreakAttempt(Animal animal) {
         if (probabilisticFriendshipRules.wishesToEndAFriendship(animal)) {
-            Optional<Animal> other =
-                    getRandomOtherAnimal(this.relationsContainer::getDisposableFriendsOf, animal);
-
-            return removeAndReturnFormerFriendshipIfOtherIsPresentElseReturnEmpty(animal, other);
-        } else
-            return Optional.empty();
-    }
-
-    private Optional<UnorderedPair<Animal>> removeAndReturnFormerFriendshipIfOtherIsPresentElseReturnEmpty(
-            Animal animal, Optional<Animal> other) {
-        if (other.isPresent()) {
-            Animal otherAnimal = other.get();
-            UnorderedPair<Animal> formerFriends = new UnorderedPair<>(animal, otherAnimal);
-            relationsContainer.removeFriendship(formerFriends);
-            return Optional.of(formerFriends);
+            return processFriendshipActionAndGetResult(this.relationsContainer::getFriendsOtherThanBestFriendOf, animal,
+                    animalFromList -> removeAndReturnFormerFriendshipBetween(animal, animalFromList));
         } else
             return Optional.empty();
     }
 
     private Optional<FlaggedOrderedPair<Animal>> friendshipStartAttempt(Animal animal) {
-        Optional<Animal> other = getRandomOtherAnimal(this.relationsContainer::getNonFriendsOf, animal);
-
-        if (other.isPresent()) {
-            Animal otherAnimal = other.get();
-            boolean friendshipAttemptSuccessful =
-                    probabilisticFriendshipRules.possibleToStartFriendshipBetween(animal, otherAnimal);
-            if (friendshipAttemptSuccessful)
-                relationsContainer.addFriendship(new UnorderedPair<>(animal, otherAnimal));
-
-            FlaggedOrderedPair<Animal> announcement =
-                    new FlaggedOrderedPair<Animal>(animal, otherAnimal, friendshipAttemptSuccessful);
-            return Optional.of(announcement);
-        } else
-            return Optional.empty();
+        return processFriendshipActionAndGetResult(this.relationsContainer::getNonFriendsOf, animal,
+                animalFromList -> attemptFriendshipAndAnnounceResultBetween(animal, animalFromList));
     }
 
-    private Optional<Animal> getRandomOtherAnimal(Function<Animal, List<Animal>> fromWhichListOf,
-                                                  Animal animal) {
+    private <T> Optional<T> processFriendshipActionAndGetResult(Function<Animal, List<Animal>> whichListOf,
+                                                                Animal animal, Function<Animal, T> action) {
+        Optional<Animal> other = getRandomOtherAnimal(whichListOf, animal);
+        return other.map(action);
+    }
+
+    private UnorderedPair<Animal> removeAndReturnFormerFriendshipBetween(Animal one, Animal other) {
+        UnorderedPair<Animal> formerFriends = new UnorderedPair<>(one, other);
+        relationsContainer.removeFriendship(formerFriends);
+        return formerFriends;
+    }
+
+    private FlaggedOrderedPair<Animal> attemptFriendshipAndAnnounceResultBetween(Animal initiator, Animal responder) {
+        boolean friendshipAttemptSuccessful =
+                probabilisticFriendshipRules.possibleToStartFriendshipBetween(initiator, responder);
+        if (friendshipAttemptSuccessful)
+            relationsContainer.addFriendship(new UnorderedPair<>(initiator, responder));
+
+        return new FlaggedOrderedPair<>(initiator, responder, friendshipAttemptSuccessful);
+    }
+
+    private Optional<Animal> getRandomOtherAnimal(Function<Animal, List<Animal>> fromWhichListOf, Animal animal) {
         List<Animal> otherAnimals = fromWhichListOf.apply(animal);
         if (otherAnimals.isEmpty()) return Optional.empty();
 

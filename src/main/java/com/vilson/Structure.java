@@ -20,21 +20,23 @@ class Structure {
     final AnimalsProvider animalsProvider;
     final Output output;
     final Day day;
-
     final PotentialBestFriendsForLifeProvider potentialBestFriendsForLifeProvider;
+    final PauseBetweenDaysToMakeOutputMoreReadable pause;
 
     Structure() {
         animalsProvider = new HardcodedAnimalsProvider();
-        output = new ConsoleOutput();
+        output = new ConsoleOutput(3);
         RandomProvider random = new RandomProviderImpl();
 
-        RelationsStructure relations = new RelationsStructure(animalsProvider, random, output);
+        RelationsStructure relations = new RelationsStructure(animalsProvider, random);
         potentialBestFriendsForLifeProvider = relations.potentialBestFriendsForLifeProvider;
 
         Lunch lunch = new Lunch(animalsProvider);
         TableFormatter tableFormatter =
                 new TableFormatter(getMaxNameLength(animalsProvider), getNumberOfParticipants(animalsProvider));
         day = new Day(relations.friendshipActions, relations.friendshipTable, lunch, output, tableFormatter);
+
+        pause = new PauseBetweenDaysToMakeOutputMoreReadable(output);
     }
 
     private int getMaxNameLength(AnimalsProvider animalsProvider) {

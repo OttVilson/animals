@@ -19,7 +19,8 @@ public class UnorderedPair<T> {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof UnorderedPair<?>)) return false;
+        if (o == this) return true;
+        if (o == null || o.getClass() != this.getClass()) return false;
 
         UnorderedPair<?> otherPair = (UnorderedPair<?>) o;
         return symmetrizedEqualityCheck(otherPair);
@@ -38,6 +39,10 @@ public class UnorderedPair<T> {
         return isSamePositionMatch(otherPair) || isMixedPositionMatch(otherPair);
     }
 
+    private int symmetrizedHashCode() {
+        return one.hashCode() + other.hashCode();
+    }
+
     private boolean isSamePositionMatch(UnorderedPair<?> otherPair) {
         return one.equals(otherPair.one) && other.equals(otherPair.other);
     }
@@ -46,7 +51,4 @@ public class UnorderedPair<T> {
         return one.equals(otherPair.other) && other.equals(otherPair.one);
     }
 
-    private int symmetrizedHashCode() {
-        return one.hashCode() + other.hashCode();
-    }
 }

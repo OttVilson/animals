@@ -45,18 +45,8 @@ class AnimalRelationsImpl implements AnimalRelations {
         return allOtherAnimals.subList(start, numberOfFriendsAkaFirstNonFriend);
     }
 
-    public List<Animal> getAllFriends() {
-        return allOtherAnimals.subList(0, numberOfFriendsAkaFirstNonFriend);
-    }
-
     public List<Animal> getCurrentNonFriends() {
         return allOtherAnimals.subList(numberOfFriendsAkaFirstNonFriend, allOtherAnimals.size());
-    }
-
-    private void validateAddingBestFriend(Animal animal) {
-        if (bestFriendIsSet)
-            throw new IllegalArgumentException("Best friend has already been set, and pushing (" + animal +
-                    ") is wrong.");
     }
 
     private void addFriendToTheEndOfFriendsList(Animal animal) {
@@ -65,6 +55,29 @@ class AnimalRelationsImpl implements AnimalRelations {
 
         allOtherAnimals.remove(index);
         allOtherAnimals.add(numberOfFriendsAkaFirstNonFriend++, animal);
+    }
+
+    private void validateAddingBestFriend(Animal animal) {
+        if (bestFriendIsSet)
+            throw new IllegalArgumentException("Best friend has already been set, and pushing (" + animal +
+                    ") is wrong.");
+    }
+
+    private void moveBestFriendFromLastFriendToFirst() {
+        Animal bestFriend = allOtherAnimals.remove(numberOfFriendsAkaFirstNonFriend - 1);
+        allOtherAnimals.add(BEST_FRIEND_IF_PRESENT_IS_POSITIONED_AT_INDEX_0, bestFriend);
+    }
+
+    private void validateIndexForRemovingFriend(int index, Animal animal) {
+        throwIfAnimalNotPresent(index, animal);
+        throwIfTryingToRemoveBestFriend(index);
+
+        if (index >= numberOfFriendsAkaFirstNonFriend)
+            throw new IllegalArgumentException("The animal (" + animal + ") wasn't a friend to start with.");
+    }
+
+    private int getStartIndexByExcludingBestFriendAtIndex0IfPresent() {
+        return bestFriendIsSet ? 1 : 0;
     }
 
     private void validateIndexForAddingFriend(int index, Animal animal) {
@@ -79,26 +92,9 @@ class AnimalRelationsImpl implements AnimalRelations {
             throw new IllegalArgumentException("The animal (" + animal + ") wasn't provided");
     }
 
-    private void validateIndexForRemovingFriend(int index, Animal animal) {
-        throwIfAnimalNotPresent(index, animal);
-        throwIfTryingToRemoveBestFriend(index);
-
-        if (index >= numberOfFriendsAkaFirstNonFriend)
-            throw new IllegalArgumentException("The animal (" + animal + ") wasn't a friend to start with.");
-    }
-
     private void throwIfTryingToRemoveBestFriend(int index) {
         if (bestFriendIsSet && index == BEST_FRIEND_IF_PRESENT_IS_POSITIONED_AT_INDEX_0)
             throw new IllegalArgumentException("Trying to remove the best friend (" +
                     allOtherAnimals.get(BEST_FRIEND_IF_PRESENT_IS_POSITIONED_AT_INDEX_0) + ").");
-    }
-
-    private void moveBestFriendFromLastFriendToFirst() {
-        Animal bestFriend = allOtherAnimals.remove(numberOfFriendsAkaFirstNonFriend - 1);
-        allOtherAnimals.add(BEST_FRIEND_IF_PRESENT_IS_POSITIONED_AT_INDEX_0, bestFriend);
-    }
-
-    private int getStartIndexByExcludingBestFriendAtIndex0IfPresent() {
-        return bestFriendIsSet ? 1 : 0;
     }
 }

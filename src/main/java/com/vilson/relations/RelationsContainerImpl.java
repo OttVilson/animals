@@ -11,7 +11,7 @@ class RelationsContainerImpl implements RelationsContainer {
 
     private final Map<Animal, AnimalRelations> animalsAndTheirRelations;
     private final PotentialBestFriendsForLifeProvider potentialBestFriendsForLifeProvider;
-    private final Set<UnorderedPair<Animal>> allFriendships;
+    private final Set<UnorderedPair<Animal>> allFriendshipsCache;
 
     RelationsContainerImpl(AnimalsProvider animalsProvider,
                            PotentialBestFriendsForLifeProvider potentialBestFriendsForLifeProvider,
@@ -19,19 +19,13 @@ class RelationsContainerImpl implements RelationsContainer {
         animalsAndTheirRelations =
                 initializeAnimalsAndTheirRelations(animalsProvider, animalRelationsFactory);
         this.potentialBestFriendsForLifeProvider = potentialBestFriendsForLifeProvider;
-        allFriendships = new HashSet<>();
+        allFriendshipsCache = new HashSet<>();
     }
 
     @Override
-    public List<Animal> getAllFriendsOf(Animal animal) {
+    public List<Animal> getFriendsOtherThanBestFriendOf(Animal animal) {
         validateThatInputAnimalBelongsToTheOriginalOnes(animal);
-        return animalsAndTheirRelations.get(animal).getAllFriends();
-    }
-
-    @Override
-    public List<Animal> getDisposableFriendsOf(Animal animal) {
-        validateThatInputAnimalBelongsToTheOriginalOnes(animal);
-        return animalsAndTheirRelations.get(animal).getFriendsOtherThanBestFriend();
+        return getRelationsFor(animal).getFriendsOtherThanBestFriend();
     }
 
     @Override
@@ -43,7 +37,7 @@ class RelationsContainerImpl implements RelationsContainer {
     @Override
     public int getNumberOfFriendsOf(Animal animal) {
         validateThatInputAnimalBelongsToTheOriginalOnes(animal);
-        return animalsAndTheirRelations.get(animal).getNumberOfFriends();
+        return getRelationsFor(animal).getNumberOfFriends();
     }
 
     @Override
@@ -63,15 +57,7 @@ class RelationsContainerImpl implements RelationsContainer {
 
     @Override
     public boolean areFriends(UnorderedPair<Animal> pair) {
-        return allFriendships.contains(pair);
-    }
-
-    private void performActions(UnorderedPair<Animal> pair,
-                                BiConsumer<AnimalRelations, Animal> actionOnIndividualLevel,
-                                BiConsumer<Set<UnorderedPair<Animal>>, UnorderedPair<Animal>>
-                                        actionOnJointCache) {
-        symmetrizeBiConsumerUse(pair, actionOnIndividualLevel);
-        actionOnJointCache.accept(allFriendships, pair);
+        return allFriendshipsCache.contains(pair);
     }
 
     private Map<Animal, AnimalRelations> initializeAnimalsAndTheirRelations(
@@ -84,17 +70,25 @@ class RelationsContainerImpl implements RelationsContainer {
         return animalsAndTheirRelations;
     }
 
-    private AnimalRelations getRelationsFor(Animal animal) {
-        return animalsAndTheirRelations.get(animal);
-    }
-
     private void validateThatInputAnimalBelongsToTheOriginalOnes(Animal animal) {
         if (!animalsAndTheirRelations.containsKey(animal))
             throw new IllegalArgumentException("The animal (" + animal + ") hasn't been provided.");
     }
 
+    private AnimalRelations getRelationsFor(Animal animal) {
+        return animalsAndTheirRelations.get(animal);
+    }
+
     private void validateThatBothAnimalsInInputPairBelongToTheOriginalOnes(UnorderedPair<Animal> both) {
         both.getComponents().forEach(this::validateThatInputAnimalBelongsToTheOriginalOnes);
+    }
+
+    private void performActions(UnorderedPair<Animal> pair,
+                                BiConsumer<AnimalRelations, Animal> actionOnIndividualLevel,
+                                BiConsumer<Set<UnorderedPair<Animal>>, UnorderedPair<Animal>>
+                                        actionOnJointCache) {
+        symmetrizeBiConsumerUse(pair, actionOnIndividualLevel);
+        actionOnJointCache.accept(allFriendshipsCache, pair);
     }
 
     private void symmetrizeBiConsumerUse(UnorderedPair<Animal> pair,
