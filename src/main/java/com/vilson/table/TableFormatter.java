@@ -3,6 +3,7 @@ package com.vilson.table;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.vilson.table.TableWalls.Wall.CONTENT_ROW;
@@ -10,26 +11,38 @@ import static com.vilson.table.TableWalls.Wall.CONTENT_ROW;
 public class TableFormatter {
     private final int cellWidth;
     private final int padding = 0;
+    private final int numberOfColumns;
     private final FormatForm formatForm;
     private final List<String> horizontalBorders;
 
     public TableFormatter(int maxNameLength, int numberOfParticipants) {
+        validateNumberOfParticipants(numberOfParticipants);
         cellWidth = maxNameLength + padding;
-        int numberOfColumns = numberOfParticipants + 1;
+        numberOfColumns = numberOfParticipants + 1;
         formatForm = new FormatForm(numberOfColumns);
         horizontalBorders = initializedHorizontalBorders(numberOfColumns);
     }
 
     public String getFormattedTable(List<List<String>> tableOfPairs) {
+        validateInputTable(tableOfPairs);
         List<String> content = getContentRows(tableOfPairs);
         List<String> mixedRows = bindContentRowsWithBorders(content);
         return String.join(System.lineSeparator(), mixedRows);
+    }
+
+    private void validateNumberOfParticipants(int numberOfParticipants) {
+        if (numberOfParticipants < 2)
+            throw new IllegalArgumentException("This table format is not usable for less than two participants");
     }
 
     private List<String> initializedHorizontalBorders(int numberOfColumns) {
         HorizontalBordersProvider horizontalBordersProvider =
                 new HorizontalBordersProvider(formatForm, cellWidth, numberOfColumns);
         return horizontalBordersProvider.getHorizontalBorders();
+    }
+
+    private void validateInputTable(List<List<String>> table) {
+        validateThatTableHasCorrectNumberOfColumnsAndRows(table);
     }
 
     private List<String> getContentRows(List<List<String>> friendshipTable) {
@@ -51,6 +64,14 @@ public class TableFormatter {
         return mixed;
     }
 
+    private void validateThatTableHasCorrectNumberOfColumnsAndRows(List<List<String>> table) {
+        validateThatTableIsSquare(table);
+        boolean correctSideLength = numberOfColumns == table.size();
+        if (!correctSideLength)
+            throw new IllegalArgumentException("The provided table is of different size than suitable for this " +
+                    "instance of " + this.getClass());
+    }
+
     private void replaceSelfSelfComparisonWithBackslash(List<String> row, int index) {
         row.remove(index);
         row.add(index, "\\");
@@ -69,6 +90,15 @@ public class TableFormatter {
             int whichElement = i / 2;
             target.add(tuple.get(whichArray).get(whichElement));
         }
+    }
+
+    private void validateThatTableIsSquare(List<List<String>> table) {
+        int numberOfRows = table.size();
+        Optional<List<String>> incorrectRow = table.stream()
+                .filter(row -> row.size() != numberOfRows).findAny();
+
+        if (incorrectRow.isPresent())
+            throw new IllegalArgumentException("The provided table is not square");
     }
 
     private String padContent(String content) {

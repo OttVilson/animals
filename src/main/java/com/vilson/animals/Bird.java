@@ -1,6 +1,7 @@
 package com.vilson.animals;
 
 class Bird extends Animal {
+    final static String WINGSPAN_FORMAT = "%.2fm";
 
     final double wingspanInMeters;
 
