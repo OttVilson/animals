@@ -2,7 +2,7 @@ package com.vilson.relations;
 
 import com.vilson.animals.Animal;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 class AnimalRelationsImpl implements AnimalRelations {
@@ -14,7 +14,7 @@ class AnimalRelationsImpl implements AnimalRelations {
     private static int BEST_FRIEND_IF_PRESENT_IS_POSITIONED_AT_INDEX_0 = 0;
 
     AnimalRelationsImpl(List<Animal> allOtherAnimals) {
-        this.allOtherAnimals = new LinkedList<>(allOtherAnimals);
+        this.allOtherAnimals = new ArrayList<>(allOtherAnimals);
     }
 
     public void addFriend(Animal animal) {
@@ -32,8 +32,7 @@ class AnimalRelationsImpl implements AnimalRelations {
         int index = allOtherAnimals.lastIndexOf(animal);
         validateIndexForRemovingFriend(index, animal);
 
-        allOtherAnimals.remove(index);
-        allOtherAnimals.add(--numberOfFriendsAkaFirstNonFriend, animal);
+        swapPositionsWithCurrentLastFriendAndDecreaseNumberOfFriendsCounterToConsiderAsNonFriend(index);
     }
 
     public int getNumberOfFriends() {
@@ -42,19 +41,18 @@ class AnimalRelationsImpl implements AnimalRelations {
 
     public List<Animal> getFriendsOtherThanBestFriend() {
         int start = getStartIndexByExcludingBestFriendAtIndex0IfPresent();
-        return allOtherAnimals.subList(start, numberOfFriendsAkaFirstNonFriend);
+        return new ArrayList<>(allOtherAnimals.subList(start, numberOfFriendsAkaFirstNonFriend));
     }
 
     public List<Animal> getCurrentNonFriends() {
-        return allOtherAnimals.subList(numberOfFriendsAkaFirstNonFriend, allOtherAnimals.size());
+        return new ArrayList<>(allOtherAnimals.subList(numberOfFriendsAkaFirstNonFriend, allOtherAnimals.size()));
     }
 
     private void addFriendToTheEndOfFriendsList(Animal animal) {
         int index = allOtherAnimals.indexOf(animal);
         validateIndexForAddingFriend(index, animal);
 
-        allOtherAnimals.remove(index);
-        allOtherAnimals.add(numberOfFriendsAkaFirstNonFriend++, animal);
+        swapPositionsWithCurrentFirstNonFriendAndIncreaseNumberOfFriendsCounterToConsiderAsFriend(index);
     }
 
     private void validateAddingBestFriend(Animal animal) {
@@ -64,8 +62,7 @@ class AnimalRelationsImpl implements AnimalRelations {
     }
 
     private void moveBestFriendFromLastFriendToFirst() {
-        Animal bestFriend = allOtherAnimals.remove(numberOfFriendsAkaFirstNonFriend - 1);
-        allOtherAnimals.add(BEST_FRIEND_IF_PRESENT_IS_POSITIONED_AT_INDEX_0, bestFriend);
+        swapElements(BEST_FRIEND_IF_PRESENT_IS_POSITIONED_AT_INDEX_0, numberOfFriendsAkaFirstNonFriend - 1);
     }
 
     private void validateIndexForRemovingFriend(int index, Animal animal) {
@@ -74,6 +71,10 @@ class AnimalRelationsImpl implements AnimalRelations {
 
         if (index >= numberOfFriendsAkaFirstNonFriend)
             throw new IllegalArgumentException("The animal (" + animal + ") wasn't a friend to start with.");
+    }
+
+    private void swapPositionsWithCurrentLastFriendAndDecreaseNumberOfFriendsCounterToConsiderAsNonFriend(int index) {
+        swapElements(--numberOfFriendsAkaFirstNonFriend, index);
     }
 
     private int getStartIndexByExcludingBestFriendAtIndex0IfPresent() {
@@ -85,6 +86,18 @@ class AnimalRelationsImpl implements AnimalRelations {
 
         if (index < numberOfFriendsAkaFirstNonFriend)
             throw new IllegalArgumentException("The animal (" + animal + ") is already in the list of friends.");
+    }
+
+    private void swapPositionsWithCurrentFirstNonFriendAndIncreaseNumberOfFriendsCounterToConsiderAsFriend(int index) {
+        swapElements(numberOfFriendsAkaFirstNonFriend++, index);
+    }
+
+    private void swapElements(int first, int second) {
+        if (first == second) return;
+        Animal firstAnimal = allOtherAnimals.get(first);
+        Animal secondAnimal = allOtherAnimals.get(second);
+        allOtherAnimals.set(first, secondAnimal);
+        allOtherAnimals.set(second, firstAnimal);
     }
 
     private void throwIfAnimalNotPresent(int index, Animal animal) {
