@@ -1,4 +1,4 @@
-package com.vilson.day;
+package com.vilson;
 
 import com.vilson.animals.Animal;
 import com.vilson.animals.AnimalsProvider;
@@ -6,7 +6,7 @@ import com.vilson.animals.AnimalsProvider;
 import java.util.ArrayList;
 import java.util.List;
 
-class FakeAnimalsProvider implements AnimalsProvider {
+public class FakeAnimalsProvider implements AnimalsProvider {
     private List<Animal> animals;
 
     @Override
@@ -14,7 +14,15 @@ class FakeAnimalsProvider implements AnimalsProvider {
         return new ArrayList<>(animals);
     }
 
-    void provideAnimals(List<Animal> animals) {
+    public void provideAnimals(List<Animal> animals) {
         this.animals = animals;
+    }
+
+    public void appendAnimal(Animal animal) {
+        animals.add(animal);
+    }
+
+    public void removeAnimal(Animal animal) {
+        animals.remove(animal);
     }
 }

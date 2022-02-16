@@ -76,11 +76,11 @@ class AnimalToStringTest {
     @Test
     void parrotWhoCanSpeak() {
         double wingspan = 0.23;
-        boolean can = true;
+        boolean canSpeak = true;
         data.put(wingspreadInMeters, String.format(WINGSPAN_FORMAT, wingspan));
-        data.put(canSpeak, Flagged.doesOrDoesnt(can) + " ");
+        data.put(Utils.canSpeak, Flagged.doesOrDoesnt(canSpeak) + " ");
 
-        Parrot parrot = new Parrot(get(name), get(favoriteFood), wingspan, can);
+        Parrot parrot = new Parrot(get(name), get(favoriteFood), wingspan, canSpeak);
 
         verifySubtypeOfAnimal(parrot);
     }
@@ -88,11 +88,11 @@ class AnimalToStringTest {
     @Test
     void parrotWhoCantSpeak() {
         double wingspan = 0.13;
-        boolean can = false;
+        boolean canSpeak = false;
         data.put(wingspreadInMeters, String.format(WINGSPAN_FORMAT, wingspan));
-        data.put(canSpeak, Flagged.doesOrDoesnt(can) + " ");
+        data.put(Utils.canSpeak, Flagged.doesOrDoesnt(canSpeak) + " ");
 
-        Parrot parrot = new Parrot(get(name), get(favoriteFood), wingspan, can);
+        Parrot parrot = new Parrot(get(name), get(favoriteFood), wingspan, canSpeak);
 
         verifySubtypeOfAnimal(parrot);
     }
@@ -105,18 +105,18 @@ class AnimalToStringTest {
         for (String fieldValue : fieldsToSeeInToStringOutput)
             assertTrue(animalToString.contains(fieldValue), String.format(missingField, fieldValue, animalToString));
 
-        verifyThatAllClassAndSuperclassesFieldsAreChecked(animal.getClass(), fieldsToSeeInToStringOutput);
+        assertAllClassAndSuperclassesInstanceFieldsAreChecked(animal.getClass(), fieldsToSeeInToStringOutput);
     }
 
 
-    private void verifyThatAllClassAndSuperclassesFieldsAreChecked(Class clazz,
-                                                                   List<String> fieldsToSeeInToStringOutput) {
+    private void assertAllClassAndSuperclassesInstanceFieldsAreChecked(Class clazz,
+                                                                       List<String> fieldsToSeeInToStringOutput) {
         String numberOfFieldsMismatch = "The number of fields checked is %d and this doesn't match with the"
                 + " number of class' fields %d. %s vs %s";
 
         int numberOfFieldsChecked = fieldsToSeeInToStringOutput.size();
         int numberOfFieldsOfClassAndSuperclasses = getAllInstanceFieldsFromTheSamePackage(clazz).size();
-        assertEquals(numberOfFieldsChecked, numberOfFieldsOfClassAndSuperclasses,
+        assertEquals(numberOfFieldsOfClassAndSuperclasses, numberOfFieldsChecked,
                 String.format(numberOfFieldsMismatch, numberOfFieldsChecked, numberOfFieldsOfClassAndSuperclasses,
                         fieldsToSeeInToStringOutput, getAllInstanceFieldsFromTheSamePackage(clazz)));
     }
